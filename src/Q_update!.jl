@@ -6,7 +6,7 @@ if any of the rho[i] change
 """
 function Q_update!(
                   Q            ::Union{Array{TF,2},SparseMatrixCSC{TF,TI}},
-                  AtA          ::Union{Vector{Array{TF,2}},Vector{SparseMatrixCSC{TF,TI}}},
+                  AtA          ::Union{Vector{Array{TF, 2}}, Vector{SparseMatrixCSC{TF, TI}}, Vector{joAbstractLinearOperator{TF, TF}}, Vector{Union{Array{TF, 2}, SparseMatrixCSC{TF, TI}, joAbstractLinearOperator{TF, TF}}}},
                   set_Prop,
                   rho          ::Vector{TF},
                   ind_updated  ::Vector{TI},

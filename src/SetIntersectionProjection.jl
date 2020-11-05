@@ -75,6 +75,7 @@ include("projectors/project_histogram_relaxed.jl");
 
 #other proximal maps
 include("prox_l2s!.jl")
+include("prox_l1!.jl")
 
 #scripts that are required to run examples
 include("constraint_learning_by_observation.jl")
@@ -142,7 +143,7 @@ mutable struct set_definitions
   min               ::Union{Vector,Real}
   max               ::Union{Vector,Real}
   app_mode          ::Tuple{String,String} #("tensor/"matrix"/"slice"/"fiber" , "x","y","z") , x,y,z apply only to slice and fibers of a tensor or matrix
-  custom_TD_OP      ::Tuple{Union{Array{Any},Array{Float64,2},Array{Float32,2}},Bool} #custom matrix for subspace, and boolean to indicate orthogonality
+  custom_TD_OP      ::Tuple{Union{Array{Any},Array{Float64,2},Array{Float32,2}, joAbstractLinearOperator},Bool} #custom matrix for subspace, and boolean to indicate orthogonality
 end
 
 end # module

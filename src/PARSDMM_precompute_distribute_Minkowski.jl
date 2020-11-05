@@ -1,9 +1,9 @@
 export PARSDMM_precompute_distribute_Minkowski
 
 function PARSDMM_precompute_distribute_Minkowski(
-                                      TD_OP_c1       ::Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}},
-                                      TD_OP_c2        ::Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}},
-                                      TD_OP_sum        ::Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}},
+                                      TD_OP_c1::Vector{Union{SparseMatrixCSC{TF,TI}, joAbstractLinearOperator{TF,TF}}},
+                                      TD_OP_c2::Vector{Union{SparseMatrixCSC{TF,TI}, joAbstractLinearOperator{TF,TF}}},
+                                      TD_OP_sum::Vector{Union{SparseMatrixCSC{TF,TI}, joAbstractLinearOperator{TF,TF}}},
                                       set_Prop_c1,
                                       set_Prop_c2,
                                       set_Prop_sum,
@@ -22,9 +22,12 @@ else
   s=p+q+r+1
 end
 
-AtA=Vector{SparseMatrixCSC{TF,TI}}(undef,s)
-ZERO_MAT = spzeros(TF,N,N)
-Id_MAT   = SparseMatrixCSC{TF}(LinearAlgebra.I,N,N)
+joli_op = false
+
+AtA = Vector{Union{Array{TF, 2}, SparseMatrixCSC{TF, TI}, joAbstractLinearOperator{TF, TF}}}(undef, s)
+ZERO_MAT_J = joZeros(N, N; DDT=TF, RDT=TF)
+ZERO_MAT = spzeros(TF, N, N)
+Id_MAT = SparseMatrixCSC{TF}(LinearAlgebra.I, N, N)
 
 for i=1:p #first component
   if set_Prop_c1.dense[i]==true
@@ -35,7 +38,9 @@ for i=1:p #first component
       error("provided a dense non orthogoal transform-domain operator")
     end
   else
-    AtA[i] =  [ TD_OP_c1[i]'*TD_OP_c1[i] ZERO_MAT ; ZERO_MAT ZERO_MAT ]
+    typeof(TD_OP_c1[i]) <: joAbstractLinearOperator ? ZM = ZERO_MAT_J : ZM = ZERO_MAT
+    joli_op = joli_op || (typeof(TD_OP_c1[i]) <: joAbstractLinearOperator)
+    AtA[i] = [ TD_OP_c1[i]'*TD_OP_c1[i] ZM ; ZM ZM ]
     #set_Prop_c1.AtA_offsets[i] #do not need to add additional offset info
   end
 end
@@ -48,7 +53,9 @@ for i=1:q #second component
       error("provided a dense non orthogoal transform-domain operator")
     end
   else
-    AtA[p+i] = [ ZERO_MAT ZERO_MAT ; ZERO_MAT TD_OP_c2[i]'*TD_OP_c2[i] ]
+    typeof(TD_OP_c2[i]) <: joAbstractLinearOperator ? ZM = ZERO_MAT_J : ZM = ZERO_MAT
+    joli_op = joli_op || (typeof(TD_OP_c1[i]) <: joAbstractLinearOperator)
+    AtA[p+i] = [ ZM ZM ; ZM TD_OP_c2[i]'*TD_OP_c2[i] ]
     #do not need to add additional offset info
   end
 end
@@ -69,10 +76,12 @@ end
 #modify the transform-domain operators to include two blocks per operator, i.e.,
 # TD_OP = [A] -> TD_OP = [A 0] or [0 A] or [A A]. This is one row of \tilde{A}
 for i=1:length(TD_OP_c1)
-  TD_OP_c1[i] = [ TD_OP_c1[i] spzeros(TF,size(TD_OP_c1[i],1),N) ];
+  typeof(TD_OP_c1[i])<:joAbstractLinearOperator ? ZM = joZeros(size(TD_OP_c1[i],1), N; DDT=TF, RDT=TF) : ZM = spzeros(TF, size(TD_OP_c1[i],1), N)
+  TD_OP_c1[i] = [ TD_OP_c1[i] ZM ];
 end
 for i=1:length(TD_OP_c2)
-  TD_OP_c2[i] = [ spzeros(TF,size(TD_OP_c2[i],1),N) TD_OP_c2[i] ];
+  typeof(TD_OP_c2[i])<:joAbstractLinearOperator ? ZM = joZeros(size(TD_OP_c2[i],1), N; DDT=TF, RDT=TF) : ZM = spzeros(TF, size(TD_OP_c2[i],1), N)
+  TD_OP_c2[i] = [ ZM TD_OP_c2[i] ];
 end
 for i=1:length(TD_OP_sum)
   TD_OP_sum[i] = [ TD_OP_sum[i] TD_OP_sum[i] ];
@@ -111,21 +120,22 @@ append!(set_Prop.ncvx,set_Prop_sum.ncvx)
 append!(set_Prop.tag,set_Prop_sum.tag)
 
 #if all AtA are banded -> convert to compressed diagonal storage (CDS/DIA) format
-if sum(set_Prop.banded[1:s].=true)==s
+if sum(set_Prop.banded[1:s].=true)==s &&  ~joli_op
   for i=1:s
+    
     (AtA[i],set_Prop.AtA_offsets[i]) = mat2CDS(AtA[i])
     set_Prop.AtA_offsets[i]=convert(Vector{TI},set_Prop.AtA_offsets[i])
   end
-   AtA=convert(Vector{Array{TF,2}},AtA);
-   set_Prop.AtA_offsets=set_Prop.AtA_offsets[1:s]
+  AtA=convert(Vector{Array{TF,2}}, AtA);
+  set_Prop.AtA_offsets=set_Prop.AtA_offsets[1:s]
 end
 
 #allocate arrays of vectors
-y       = Vector{Vector{TF}}(undef,s);
-l       = Vector{Vector{TF}}(undef,s);
+y = Vector{Vector{TF}}(undef,s);
+l = Vector{Vector{TF}}(undef,s);
 
 #create one TD_OP that contains all transform-domain operators
-TD_OP = Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}}(undef,s)
+TD_OP = Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joAbstractLinearOperator{TF,TF}}}(undef,s)
 TD_OP[1:p]     = TD_OP_c1
 TD_OP[1+p:p+q] = TD_OP_c2
 TD_OP[1+p+q:s] = TD_OP_sum

@@ -23,8 +23,8 @@ output:
  - log_PARSDMM -   constains log information about various quantities per iteration
 """
 function PARSDMM(m         ::Vector{TF},
-                 AtA       ::Union{Vector{SparseMatrixCSC{TF,TI}},Vector{Array{TF,2}}},
-                 TD_OP     ::Union{Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}},DistributedArrays.DArray{Union{JOLI.joLinearFunction{TF,TF}, SparseMatrixCSC{TF,TI}},1,Array{Union{JOLI.joLinearFunction{TF,TF}, SparseMatrixCSC{TF,TI}},1}} },
+                 AtA       ::Union{Vector{Array{TF, 2}}, Vector{SparseMatrixCSC{TF, TI}}, Vector{joAbstractLinearOperator{TF, TF}}, Vector{Union{Array{TF, 2}, SparseMatrixCSC{TF, TI}, joAbstractLinearOperator{TF, TF}}}},
+                 TD_OP     ::Union{Vector{Union{SparseMatrixCSC{TF,TI},joAbstractLinearOperator{TF,TF}}},DistributedArrays.DArray{Union{JOLI.joAbstractLinearOperator{TF,TF}, SparseMatrixCSC{TF,TI}},1,Array{Union{joAbstractLinearOperator{TF,TF}, SparseMatrixCSC{TF,TI}},1}} },
                  set_Prop,
                  P_sub     ::Union{Vector{Any},DistributedArrays.DArray{Any,1,Array{Any,1}}},
                  comp_grid,

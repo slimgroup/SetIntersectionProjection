@@ -44,7 +44,7 @@ end
 
 #allocate
 P_sub = Vector{Any}(undef,nr_constraints)
-TD_OP = Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}}(undef,nr_constraints)
+TD_OP = Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joAbstractLinearOperator{TF,TF}}}(undef,nr_constraints)
 AtA   = Vector{SparseMatrixCSC{TF,TI}}(undef,nr_constraints)
 
 #initialize storage for set properties

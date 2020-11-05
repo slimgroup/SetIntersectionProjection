@@ -4,7 +4,7 @@ export PARSDMM_precompute_distribute
 Precomputes and distributes some quantities that serve as input for PARSDMM.jl
 """
 function PARSDMM_precompute_distribute(
-                                      TD_OP    ::Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}},
+                                      TD_OP    ::Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joAbstractLinearOperator{TF,TF}}},
                                       set_Prop,
                                       comp_grid,
                                       options
