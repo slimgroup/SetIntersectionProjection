@@ -22,15 +22,15 @@ function project_l1_Duchi!(v::Union{Vector{TF},Vector{Complex{TF}}}, b::TF) wher
   norm(v, 1) <= b && return v
 
   lv = length(v)
-  u = Vector{TF}(undef,lv)
-  sv = Vector{TF}(undef,lv)
+  u = similar(v)
+  sv = Vector{TF}(undef, lv)
 
   #use RadixSort for Float32 (short keywords)
   copyto!(u, v)
   if TF==Float32
-    u = sort!(abs.(u), rev=true,alg=RadixSort)
+    u = sort!(abs.(u), rev=true, alg=RadixSort)
   else
-    u = sort!(abs.(u), rev=true,alg=QuickSort)
+    u = sort!(abs.(u), rev=true, alg=QuickSort)
   end
 
   cumsum!(sv, u)

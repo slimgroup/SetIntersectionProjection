@@ -20,7 +20,7 @@ function get_projector(constraint,comp_grid,special_operator_list::Array{String,
 
   if constraint.set_type == "prox_l1"
     if constraint.TD_OP in special_operator_list
-      P = x -> copyto!(x,A'*prox_l1!(A*x,constraint.max))
+      P = x -> copyto!(x,.5f0*A'*prox_l1!(A*x,constraint.max))
     else
       P = x -> prox_l1!(x,constraint.max)
     end

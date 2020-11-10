@@ -8,6 +8,7 @@ function compute_relative_feasibility(m::Vector{TF}, feasibility_initial::Vector
                                       TD_OP::Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joAbstractLinearOperator{TF,TF}}},
                                        P_sub) where {TF<:Real,TI<:Integer}
 
-feasibility_initial[1]=norm(P_sub[1](TD_OP[1]*m) .- TD_OP[1]*m) ./ (norm(TD_OP[1]*m)+(100*eps(TF)))
+    pm = TD_OP[1]*m
+    feasibility_initial[1]=norm(P_sub[1](pm) .- pm) ./ (norm(pm)+(100*eps(TF)))
 #gc() check if we need this in julia >0.7
 end

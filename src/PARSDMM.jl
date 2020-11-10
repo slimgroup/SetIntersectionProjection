@@ -48,8 +48,8 @@ if isreal(m)==false || isreal(x)==false || isreal(l)==false || isreal(y)==false
 end
 
 # initialize
-pp=length(TD_OP);
-if feasibility_only==false; pp=pp-1; end;
+pp = length(TD_OP);
+feasibility_only == false && (pp=pp-1)
 
 (ind_ref,N,TD_OP,AtA,p,rho_update_frequency,adjust_gamma,adjust_rho,adjust_feasibility_rho,gamma_ini,rho,gamma,y,y_0,y_old,l,l_0,l_old,
 l_hat_0,x_0,x_old,r_dual,rhs,s,s_0,Q,prox,log_PARSDMM,l_hat,x_hat,r_pri,d_l_hat,d_H_hat,d_l,
@@ -88,10 +88,9 @@ counter=2
 
 x_solve_tol_ref=TF(1.0) #scalar required to determine tolerance for x-minimization, initial value doesn't matter
 
-log_PARSDMM.T_ini=0.0#toq();;
+log_PARSDMM.T_ini=0.0
 
 for i=1:maxit #main loop
-
   #form right hand side for x-minimization
   #tic();
   rhs               = rhs_compose(rhs,l,y,rho,TD_OP,p,Blas_active,parallel)

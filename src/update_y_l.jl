@@ -15,7 +15,7 @@ function update_y_l(
   rho                   ::Vector{TF},
   gamma                 ::Vector{TF},
   prox                  ::Vector{Any},
-  TD_OP                 ::Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joAbstractLinearOperator{TF,TF}}},
+  TD_OP                 ::Vector{<:Union{SparseMatrixCSC{TF,TI}, joAbstractLinearOperator{TF,TF}}},
   log_PARSDMM,
   P_sub,
   counter               ::Integer,
