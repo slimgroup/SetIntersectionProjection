@@ -44,14 +44,14 @@ end
 
 #allocate
 P_sub = Vector{Any}(undef,nr_constraints)
-TD_OP = Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}}(undef,nr_constraints)
+TD_OP = Vector{Union{Array{TF, 2}, SparseMatrixCSC{TF,TI},JOLI.joAbstractLinearOperator{TF,TF}}}(undef,nr_constraints)
 AtA   = Vector{SparseMatrixCSC{TF,TI}}(undef,nr_constraints)
 
 #initialize storage for set properties
 set_Prop=set_properties(zeros(nr_constraints),zeros(nr_constraints),zeros(nr_constraints),Vector{Tuple{TI,TI}}(undef,nr_constraints),Vector{Tuple{String,String,String,String}}(undef,nr_constraints),zeros(nr_constraints),Vector{Vector{TI}}(undef,nr_constraints))
 
 #other initialization
-special_operator_list = ["DFT", "DCT", "wavelet"] #complex valued operators that are orthogonal
+special_operator_list = ["DFT", "DCT", "wavelet", "curvelet"] #complex valued operators that are orthogonal
 N =  prod(comp_grid.n)
 
 for i = 1:nr_constraints
@@ -66,13 +66,13 @@ for i = 1:nr_constraints
         error("l1 and l2 constraints only available for matrix or tensor mode, currently")
       end
 
-
       (A,AtA_diag,dense,TD_n,banded) = get_TD_operator(comp_grid,constraint[i].TD_OP,TF)
+      ~(constraint[i].custom_TD_OP[1] == []) && (A = constraint[i].custom_TD_OP[1])
 
       P_sub[i] = get_projector(constraint[i],comp_grid,special_operator_list,A,TD_n,TF)
 
       if constraint[i].TD_OP in special_operator_list
-        TD_OP[i] =  SparseMatrixCSC{TF}(LinearAlgebra.I,N,N)
+        TD_OP[i] = SparseMatrixCSC{TF}(LinearAlgebra.I,N,N)
       else
         TD_OP[i] = A
       end

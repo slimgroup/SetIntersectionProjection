@@ -34,10 +34,10 @@ end
 #quantities for PARSDMM for each level
 m_levels         = Vector{Vector{TF}}(undef,n_levels)
 if options.parallel==false
-  TD_OP_levels   = Vector{Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}}}(undef,n_levels)
+  TD_OP_levels   = Vector{Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joAbstractLinearOperator{TF,TF}}}}(undef,n_levels)
 else
   #TD_OP_levels   = Vector{DistributedArrays.DArray{SparseMatrixCSC{TF,TI},1,Array{SparseMatrixCSC{TF,TI},1}}}(n_levels)
-  TD_OP_levels   = Vector{DistributedArrays.DArray{Union{JOLI.joLinearFunction{TF,TF}, SparseMatrixCSC{TF,TI}},1,Array{Union{JOLI.joLinearFunction{TF,TF}, SparseMatrixCSC{TF,TI}},1}}}(undef,n_levels)
+  TD_OP_levels   = Vector{DistributedArrays.DArray{Union{JOLI.joAbstractLinearOperator{TF,TF}, SparseMatrixCSC{TF,TI}},1,Array{Union{JOLI.joAbstractLinearOperator{TF,TF}, SparseMatrixCSC{TF,TI}},1}}}(undef,n_levels)
 end
 AtA_levels       = Vector{Vector{SparseMatrixCSC{TF,TI}}}(undef,n_levels)
 P_sub_levels     = Vector{Vector{Any}}(undef,n_levels)

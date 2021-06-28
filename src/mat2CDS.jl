@@ -28,5 +28,5 @@ function mat2CDS(A::SparseMatrixCSC{TF,TI}) where {TF<:Real,TI<:Integer}
     end
   end
 
-return R,offset
+  return R, offset
 end

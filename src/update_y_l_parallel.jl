@@ -14,7 +14,7 @@ function update_y_l_parallel(
   rho                   ::Vector{TF},
   gamma                 ::Vector{TF},
   prox                  ::Vector{Any},
-  TD_OP                 ::Vector{Union{SparseMatrixCSC{TF,TI},JOLI.joLinearFunction{TF,TF}}},
+  TD_OP                 ::Vector{<:Union{SparseMatrixCSC{TF,TI},joAbstractLinearOperator{TF,TF}}},
   P_sub,
   x_hat                 ::Vector{Vector{TF}},
   r_pri                 ::Vector{Vector{TF}},
